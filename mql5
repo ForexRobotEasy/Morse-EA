@@ -1,0 +1,145 @@
+
+//+------------------------------------------------------------------+
+//|                                                       Morse EA  |
+//|                                   Developed by Forex Robot Easy Team |
+//|                                                    forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+// Define input parameters
+input int mode = 0; // 0: scalping, 1: trend trading
+input int ema1Period = 20; // Period for the first EMA
+input int ema2Period = 50; // Period for the second EMA
+input double riskPercentage = 2.0; // Percentage of account balance to risk per trade
+input double stopLossPips = 50.0; // Stop loss in pips
+input double takeProfitPips = 100.0; // Take profit in pips
+
+// Define global variables
+double lotSize;
+int currentMode;
+int prevMode;
+int ema1Handle;
+int ema2Handle;
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Set initial values
+    currentMode = mode;
+    prevMode = mode;
+    lotSize = CalculateLotSize();
+
+    // Initialize EMAs
+    ema1Handle = iMA(NULL, 0, ema1Period, 0, MODE_EMA, PRICE_CLOSE);
+    ema2Handle = iMA(NULL, 0, ema2Period, 0, MODE_EMA, PRICE_CLOSE);
+
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator deinitialization function                       |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Clear EMAs
+    ObjectDelete(ema1Handle);
+    ObjectDelete(ema2Handle);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator iteration function                              |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+    // Check for mode change
+    if (currentMode != mode) {
+        prevMode = currentMode;
+        currentMode = mode;
+        lotSize = CalculateLotSize();
+    }
+
+    // Calculate EMAs
+    double ema1 = iMA(NULL, 0, ema1Period, 0, MODE_EMA, PRICE_CLOSE, 0);
+    double ema2 = iMA(NULL, 0, ema2Period, 0, MODE_EMA, PRICE_CLOSE, 0);
+
+    // Check for entry condition based on Morse algorithm
+    bool shouldEnterTrade = MorseAlgorithm();
+
+    // Check for exit condition based on predefined rules
+    bool shouldExitTrade = CheckExitRules();
+
+    // Execute trades
+    if (shouldEnterTrade) {
+        if (currentMode == 0) {
+            // Execute scalping trade
+            ExecuteScalpingTrade();
+        } else {
+            // Execute trend trading trade
+            ExecuteTrendTrade();
+        }
+    } else if (shouldExitTrade) {
+        // Close existing trades
+        CloseAllTrades();
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Calculate the lot size based on risk percentage                  |
+//+------------------------------------------------------------------+
+double CalculateLotSize()
+{
+    double accountBalance = AccountBalance();
+    double riskAmount = accountBalance * riskPercentage / 100;
+    double tickValue = MarketInfo(Symbol(), MODE_TICKVALUE);
+    double stopLossPrice = stopLossPips * MarketInfo(Symbol(), MODE_POINT);
+
+    return NormalizeDouble(riskAmount / (stopLossPrice * tickValue), 2);
+}
+
+//+------------------------------------------------------------------+
+//| Implement the Morse algorithm to filter entry points             |
+//+------------------------------------------------------------------+
+bool MorseAlgorithm()
+{
+    // Implement the Morse algorithm here
+    // ...
+    return true; // Placeholder, replace with actual implementation
+}
+
+//+------------------------------------------------------------------+
+//| Check exit rules for closing trades                               |
+//+------------------------------------------------------------------+
+bool CheckExitRules()
+{
+    // Implement exit rules here
+    // ...
+    return false; // Placeholder, replace with actual implementation
+}
+
+//+------------------------------------------------------------------+
+//| Execute a scalping trade                                          |
+//+------------------------------------------------------------------+
+void ExecuteScalpingTrade()
+{
+    // Implement scalping trade execution here
+    // ...
+}
+
+//+------------------------------------------------------------------+
+//| Execute a trend trading trade                                     |
+//+------------------------------------------------------------------+
+void ExecuteTrendTrade()
+{
+    // Implement trend trading trade execution here
+    // ...
+}
+
+//+------------------------------------------------------------------+
+//| Close all existing trades                                          |
+//+------------------------------------------------------------------+
+void CloseAllTrades()
+{
+    // Close all trades here
+    // ...
+}
